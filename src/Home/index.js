@@ -81,12 +81,12 @@ const Home = () => {
     ]);
     let u = {};
     //---------Normal---------------------------
-    // values.forEach((e) => (u[e[0]] = e[1]));
+    values.forEach((e) => (u[e[0]] = e[1]));
     //---------Not Normal---------------------------
-    values.forEach((e) => {
-      if (e[0] === 'status') u[e[0]] = 'notNormal';
-      else u[e[0]] = e[1];
-    });
+    // values.forEach((e) => {
+    //   if (e[0] === 'status') u[e[0]] = 'notNormal';
+    //   else u[e[0]] = e[1];
+    // });
     setUserInfo(u);
     setLoading(false);
   };
