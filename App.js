@@ -1,6 +1,10 @@
 import React, {useContext, useState, useEffect} from 'react';
-import {StatusBar} from 'react-native';
-import {Dimensions} from 'react-native';
+import {
+  StatusBar,
+  Dimensions,
+  Platform,
+  PermissionsAndroid,
+} from 'react-native';
 import Third from './src/Explain/Third';
 import Second from './src/Explain/Second';
 import Splash from './src/Auth/Splash';
@@ -24,9 +28,14 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 import AppContext from './src/AppContext.js';
+import axios from './axios';
+import Loader from './src/Loader/Loader';
+import AsyncStorage from '@react-native-community/async-storage';
+
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CallStack = createStackNavigator();
+let userInfo;
 
 function CallStackScreen() {
   return (
@@ -103,6 +112,7 @@ function AuthStackScreen() {
         component={Signup}
         options={{
           headerTitle: 'Бүртгүүлэх',
+          headerTitleAlign: 'center'
         }}></AuthStack.Screen>
     </AuthStack.Navigator>
   );
@@ -137,7 +147,7 @@ function TabScreen() {
       }}>
       <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Call" component={CallStackScreen} />
-      <Tab.Screen name="Check" component={Home} />
+      <Tab.Screen name="Check">{() => <Home medeelel={userInfo} />}</Tab.Screen>
       <Tab.Screen name="Aid" component={AidStackScreen} />
       <Tab.Screen name="Notif" component={Notif} />
     </Tab.Navigator>
@@ -146,48 +156,132 @@ function TabScreen() {
 const RootStack = createStackNavigator();
 const MainApp = () => {
   const isSign = useContext(AppContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userToken, setUserToken] = useState(isSign);
+  const [isSplash, setSplash] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isLoged, setIsLoged] = useState(isSign);
+  // const [aldaa, setAldaa] = useState(null);
   const authContext = React.useMemo(() => {
     return {
-      signIn: () => {
-        setUserToken('utga');
+      signIn: async (registerNumber, password, setErr) => {
+        const datas = {
+          registrationNumber: registerNumber,
+          password: password,
+        };
+        setLoading(true);
+        try {
+          const res = await axios.post('/anhaar/user/signIn', datas);
+          if (res.data.message === 'Алдаа гарлаа') setErr(true);
+          else {
+            // setAldaa(false);
+            await AsyncStorage.setItem('token', res.data.entity);
+            await AsyncStorage.setItem('username', registerNumber);
+            //Хэрэглэгчийн мэдээллийг татаж авч байна
+            axios.defaults.headers.common = {
+              Authorization: `Bearer ${res.data.entity}`,
+            };
+            userInfo = await axios.get('/anhaar/user/get').then((res) => {
+              return res.data.entity;
+            });
+            //Хэрэглэгчийн мэдээллийг хадгалж авч байна
+            await AsyncStorage.multiSet([
+              ['firstName', userInfo.firstName],
+              ['status', userInfo.userStatus.status],
+              [
+                'endDate',
+                userInfo.userStatus.endDate === null
+                  ? ''
+                  : userInfo.userStatus.endDate,
+              ],
+              ['qrCode', userInfo.qrCode],
+              ['sex', userInfo.sex],
+              ['dateOfBirth', userInfo.dateOfBirth],
+            ]);
+          }
+        } catch (e) {
+          if (e.message === 'Network Error')
+            alert('Та интернет холболтоо шалгана уу.');
+          console.log('Алдаа гарлаашүүдээ ' + e.message);
+        } finally {
+          setLoading(false);
+          setIsLoged(await AsyncStorage.getItem('token'));
+        }
       },
-      signOut: () => {
-        setUserToken(null);
+      signOut: async () => {
+        setLoading(true);
+        const keys = [
+          'token',
+          'firstName',
+          'status',
+          'endDate',
+          'qrCode',
+          'sex',
+          'dateOfBirth',
+        ];
+        try {
+          await AsyncStorage.multiRemove(keys);
+          //await AsyncStorage.removeItem('token');
+          setIsLoged(null);
+        } catch (e) {
+          console.log('Log out хийхэд алдаа гарав ' + e);
+        } finally {
+          setLoading(false);
+        }
       },
     };
   }, []);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 1000);
-  // }, []);
-  if (isLoading) {
-    return <Splash setIsLoading={setIsLoading} />;
-  }
-  return (
-    <AppContext.Provider value={authContext}>
-      <StatusBar hidden={true} />
-      <NavigationContainer>
-        <RootStack.Navigator
-          // screenOptions={{
-          //   gestureEnabled: true,
-          //   gestureDirection: 'horizontal-inverted',
-          //   transitionSpec: {
-          //     open: config,
-          //     close: config,
-          //   },
-          // }}
-          headerMode="none">
-          {userToken ? (
-            <RootStack.Screen component={TabScreen} name="TabScreen" />
-          ) : (
-            <RootStack.Screen component={AuthStackScreen} name="AuthStack" />
-          )}
-        </RootStack.Navigator>
-      </NavigationContainer>
-    </AppContext.Provider>
-  );
+  const splashWatch = async () => {
+    await AsyncStorage.setItem('splash', 'uzev');
+    setSplash(true);
+  };
+  const check = async () => {
+    const splash = await AsyncStorage.getItem('splash');
+    if (splash === null) splashWatch();
+    const token = await AsyncStorage.getItem('token');
+    if (token !== null) setIsLoged(token);
+  };
+  const requestPermissions = async () => {
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization();
+      Geolocation.setRNConfiguration({
+        skipPermissionRequests: false,
+        authorizationLevel: 'whenInUse',
+      });
+    }
+
+    if (Platform.OS === 'android') {
+      await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+    }
+  };
+  useEffect(() => {
+    requestPermissions();
+    check();
+  }, []);
+  if (isSplash) return <Splash setIsLoading={setSplash} />;
+  else
+    return (
+      <AppContext.Provider value={authContext}>
+        <StatusBar hidden={true} />
+        <NavigationContainer>
+          <RootStack.Navigator headerMode="none">
+            {isLoged ? (
+              <RootStack.Screen component={TabScreen} name="TabScreen" />
+            ) : (
+              <RootStack.Screen
+                // component={AuthStackScreen}
+                name="AuthStack">
+                {() => (
+                  <>
+                    <AuthStackScreen />
+                    {loading && <Loader visible={loading} />}
+                  </>
+                )}
+              </RootStack.Screen>
+            )}
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </AppContext.Provider>
+    );
 };
 export default MainApp;

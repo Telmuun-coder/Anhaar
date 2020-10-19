@@ -14,6 +14,8 @@ def add_flipper_pods!(versions = {})
   pod 'FlipperKit/SKIOSNetworkPlugin', versions['Flipper'], :configuration => 'Debug'
   pod 'FlipperKit/FlipperKitUserDefaultsPlugin', versions['Flipper'], :configuration => 'Debug'
   pod 'FlipperKit/FlipperKitReactPlugin', versions['Flipper'], :configuration => 'Debug'
+  #image cache hiihtei holbootoi
+  pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
 
   # List all transitive dependencies for FlipperKit pods
   # to avoid them being linked in Release builds
@@ -88,6 +90,9 @@ target 'Anhaar' do
   pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
 
   pod 'ReactNativeGetLocation', :path => '../node_modules/react-native-get-location'
+
+  pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
+
 
   target 'AnhaarTests' do
     inherit! :complete

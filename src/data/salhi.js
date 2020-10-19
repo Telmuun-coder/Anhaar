@@ -1,5 +1,6 @@
 var salhiJson = {
   name: 'ХҮЧТЭЙ САЛХИ',
+  // image: require('../../images/salhi.png'),
   image: require('../../images/salhi.png'),
   bgImage: require('../../images/salhi/image_salhi.png'),
   id: '6',

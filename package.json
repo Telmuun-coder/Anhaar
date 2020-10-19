@@ -10,18 +10,25 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/bottom-tabs": "^5.6.0",
     "@react-navigation/material-top-tabs": "^5.2.11",
     "@react-navigation/native": "^5.6.0",
     "@react-navigation/stack": "^5.6.0",
+    "axios": "^0.19.2",
+    "form-data": "^3.0.0",
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-animatable": "^1.3.3",
     "react-native-camera": "^3.30.0",
+    "react-native-datepicker": "^1.7.2",
+    "react-native-geolocation-service": "^5.0.0",
     "react-native-gesture-handler": "^1.6.1",
     "react-native-get-location": "^1.4.2",
     "react-native-image-picker": "^2.3.1",
+    "react-native-img-cache": "^1.6.0",
+    "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-permissions": "^2.1.5",
     "react-native-qrcode-scanner": "^1.4.1",
@@ -31,7 +38,9 @@
     "react-native-screens": "^2.9.0",
     "react-native-swiper": "^1.6.0",
     "react-native-tab-view": "^2.14.4",
-    "react-native-vector-icons": "^6.6.0"
+    "react-native-vector-icons": "^6.6.0",
+    "react-native-webview": "^10.3.2",
+    "rn-fetch-blob": "github:joltup/rn-fetch-blob"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",

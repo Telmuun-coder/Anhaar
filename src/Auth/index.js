@@ -1,4 +1,4 @@
-import React, {Component, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   StyleSheet,
@@ -19,8 +19,16 @@ import AppContext from '../AppContext.js';
 import Button from '../Button';
 const Login = (props) => {
   const {signIn} = useContext(AppContext);
+  const [registerNumber, setRegisterNumber] = useState('BB88969796');
+  const [password, setPassword] = useState('pass');
+  const [err, setErr] = useState(false);
   return (
     <View style={styles.MainContainer}>
+      {err && (
+        <Text style={{color: 'red'}}>
+          Таны РЕГИСТР эсвэл НУУЦ ҮГ буруу байна.
+        </Text>
+      )}
       <View style={styles.item}>
         <Icon
           style={{marginRight: 10}}
@@ -29,8 +37,13 @@ const Login = (props) => {
           color="orange"
         />
         <View>
-          <Text style={styles.itemText}>Нэр</Text>
-          <TextInput style={styles.input} placeholder="username" />
+          <Text style={styles.itemText}>РЕГИСТРИЙН ДУГААР</Text>
+          <TextInput
+            value={registerNumber}
+            onChangeText={(text) => setRegisterNumber(text)}
+            style={styles.input}
+            placeholder="АА00000000"
+          />
         </View>
       </View>
       <View style={styles.item}>
@@ -41,11 +54,25 @@ const Login = (props) => {
           color="orange"
         />
         <View>
-          <Text style={styles.itemText}>Нууц үг</Text>
-          <TextInput placeholder="password " style={styles.input} />
+          <Text style={styles.itemText}>НУУЦ ҮГ</Text>
+          <TextInput
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            secureTextEntry
+            placeholder="нууц үг"
+            style={styles.input}
+          />
         </View>
       </View>
-      <Button method={signIn} name="Нэвтрэх" />
+      <View style={{marginVertical: 15}}>
+        <Button
+          method={() => {
+            // setAldaa(signIn(registerNumber, password));
+            signIn(registerNumber, password, setErr);
+          }}
+          name="Нэвтрэх"
+        />
+      </View>
       <TouchableOpacity
         style={{marginTop: 80}}
         onPress={() => props.navigation.navigate('Signup')}>
@@ -75,7 +102,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor: 'white',
     // borderColor: '#F6972A',
-    width: wp('100%'),
+    width: '80%',
+    borderRadius: 8,
   },
   itemText: {
     color: 'grey',

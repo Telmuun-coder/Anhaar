@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
   LinearGradientStyle: {
     width: wp('80%'),
-    marginVertical: 24,
+    // marginVertical: 15,
     elevation: 3,
     height: hp('7%'),
     borderRadius: 10,

@@ -190,6 +190,7 @@ android {
 }
 
 dependencies {
+    //compile "com.google.android.gms:play-services:10.0.1" -> which version that you have write down here.
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
